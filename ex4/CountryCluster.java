@@ -6,6 +6,7 @@
 
 package ex4;
 
+import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,7 +27,14 @@ class CountryCluster extends Cluster{
 			}
 		}
 		
+		createSets();
 		//computeDistribution();
+	}
+	
+	public void print(PrintStream out) {
+		out.println("Cluster: type="+type+" id="+id);
+		out.println("         country="+country);
+		super.print(out);
 	}
 
 	/* (non-Javadoc)

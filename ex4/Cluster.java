@@ -7,7 +7,10 @@
 package ex4;
 
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public abstract class Cluster {
@@ -21,6 +24,9 @@ public abstract class Cluster {
 	Point center;
 	double variance;
 	
+	Set<String> wordIntersection;
+	Set<String> wordUnion;
+	
 	
 	public abstract List<Point> getPoints();
 	
@@ -31,10 +37,42 @@ public abstract class Cluster {
 		this.metric = metric;
 	}
 	
+	public void createSets() {
+		wordUnion        = new HashSet<String>();
+		wordIntersection = new HashSet<String>(Arrays.asList(getPoints().get(0).words));
+		
+		for(Point point:getPoints()) {
+			wordUnion.addAll(Arrays.asList(point.words));
+			wordIntersection.retainAll(Arrays.asList(point.words));
+		}
+	}
+	
+	public static String setToString(Set<String> set) {
+		StringBuffer buff = new StringBuffer();
+		for(String word:set) {
+			buff.append(word+",");
+		}
+		return buff.toString();
+	}
+	
 	public void addWords() {
 		for(Point point:getPoints()) {
 			Dictionary.addWords(point.words, this);
 		}
+	}
+	
+	public void printSetMatch(Point point,PrintStream out) {
+	
+		Set<String> intersection = new HashSet<String>(point.wordSet);
+		intersection.retainAll(wordIntersection);
+		
+		Set<String> difference = new HashSet<String>(point.wordSet);
+		difference.removeAll(wordUnion);
+		
+		out.println("Match cluster="+this.id);
+		out.println("   intersection='"+Cluster.setToString(intersection)+"'");
+		out.println("   difference='"+Cluster.setToString(difference)+"'");
+		
 	}
 	
 
@@ -49,10 +87,10 @@ public abstract class Cluster {
 
 	
 	public void print(PrintStream out) {
-		out.println("Cluster: type="+type);
-		//out.println("         center='"+center.name+"'");
-		//out.println("         var="+variance);
 		out.println("         #points="+getPoints().size());
+		out.println("         intersection="+Cluster.setToString(wordIntersection));
+		out.println("         union="+Cluster.setToString(wordUnion));
+		out.println("         all points:");
 		for(Point point:getPoints()) {
 			out.println("         '"+point.name+"'");
 		}

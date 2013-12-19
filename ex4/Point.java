@@ -6,6 +6,10 @@
 
 package ex4;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * @author AdNovum Informatik AG
@@ -15,6 +19,7 @@ public class Point implements Comparable<Point>{
 	
 	public String name;
 	public String[] words;
+	public Set<String> wordSet;
 	public Integer city;
 	public Integer country;
 
@@ -22,20 +27,26 @@ public class Point implements Comparable<Point>{
 		this.name = line[0].toLowerCase();
 		this.city = Integer.parseInt(line[1]);
 		this.country = Integer.parseInt(line[2]);
-		this.words = this.name.split(" ");
+		init();
+		
 	}
 	
 	public Point(String name) {
 		this.name = name.toLowerCase();
 		this.city = -1;
 		this.country = -1;
+		init();
+	}
+	
+	private void init() {
 		this.words = this.name.split(" ");
+		this.wordSet = new HashSet<String>(Arrays.asList(this.words));
 	}
 
 	/**
 	 * @return
 	 */
-	public String[] toStringArray() {
+	public String[] toStringArrayPrediction() {
 		return new String[] {Integer.toString(city),Integer.toString(country)};
 	}
 	public String[] toStringArray1() {

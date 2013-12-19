@@ -37,6 +37,8 @@ class CityCluster  extends Cluster{
 			}
 		}
 		
+		createSets();
+		
 		//computeDistribution();
 	}
 
@@ -49,14 +51,8 @@ class CityCluster  extends Cluster{
 	public void print(PrintStream out) {
 		out.println("Cluster: type="+type+" id="+id);
 		out.println("         city="+city);
-		//System.out.println("         center='"+center.name+"'");
-		//System.out.println("         var="+variance);
-		out.println("         #points="+getPoints().size());
-		for(Point point:getPoints()) {
-			out.println("         '"+point.name+"'");
-		}
-		out.println();
-		out.println();
+		out.println("         country="+country);
+		super.print(out);
 	}
 
 }

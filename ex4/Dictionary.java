@@ -66,10 +66,13 @@ public class Dictionary {
 		out.println("Words:");
 
 		Iterator<Word> iter = words.values().iterator();		
+		int cnt=0;
 		while(iter.hasNext()) {
 			out.println("   "+iter.next().toString());
+			cnt++;
 		}
 
+		out.println("#words="+cnt);
 		out.close();
 	}
 

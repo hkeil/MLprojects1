@@ -28,34 +28,41 @@ import au.com.bytecode.opencsv.CSVWriter;
  */
 public class Main {
 	
-	public static String DATA_DIR = "C:\\Users\\hacke\\Documents\\CAS\\machine-learning\\exercise4\\java\\svm1\\svm1";
+	public static String DATA_DIR = "/home/hacke/projects/svm1";
 	
 	
 	public static Metric metrics[] = {new Levenshtein()};
 	public static List<CityCluster> cities_list = new LinkedList<CityCluster>();
+	public static Point[] training_data = null;
 	
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		
-		readTraingData(cities_list);
+		training_data = readTraingData(cities_list);
 		
 		Point[] newPoints = readFile(DATA_DIR + "/validation.csv");
 		
-		
+		int cnt = 0;
 		for(Point point:newPoints) {
 			
 			// shortcut
-			if(directMatch(point, cities_list)) {
-				continue;
+			//if(directMatch(point, cities_list)) {
+			//	continue;
+			//}
+			
+			predict2(point,metrics[0]);
+			
+			if(cnt++ == 10){
+				break;
 			}
 			
-			predict(point,metrics[0]);
-			
-			break;
 		}
 		
 		writePrediction(newPoints,  DATA_DIR + "/valres-j.csv");
 		
 	}
+
+
+	
 
 
 	private static boolean directMatch(Point point, List<CityCluster> clusters) {
@@ -64,12 +71,35 @@ public class Main {
 			if(cluster.directMatch(point.name)) {
 				point.city = cluster.city;
 				point.country = cluster.country;
+				
+				System.out.println("Found direct match for '"+point.name+"'");
 				return true;
 			}
 		}
 		return false;
 	}
 
+	/**
+	 * @param point
+	 * @param metric
+	 */
+	private static void predict2(Point point, Metric metric) {
+		
+		int minDist = -1;
+		Point prediction = null;
+		for(Point train:training_data) {
+			
+			int dist = metric.distance(train.name, point.name);
+			
+			if(minDist == -1 || dist < minDist) {
+				minDist = dist;
+				prediction = train;
+			}
+		}
+		
+		point.city = prediction.city;
+		point.country = prediction.country;
+	}
 
 	private static void predict(Point point,Metric metric) {
 		
@@ -84,6 +114,8 @@ public class Main {
 				distance++;
 			}
 			else if(intersection.size() == 1) {
+				printMatches(intersection, point, System.out);
+				
 				CityCluster cluster = (CityCluster) clusters.iterator().next();
 				point.city = cluster.city;
 				point.country = cluster.country;
@@ -93,6 +125,8 @@ public class Main {
 				break;
 			}
 			else {
+				printMatches(intersection, point, System.out);
+				
 				//FIXME: more then one cluster
 				
 				//we rake the first one
@@ -100,11 +134,34 @@ public class Main {
 				point.city = cluster.city;
 				point.country = cluster.country;
 				
-				System.out.println("Found not unique match for '"+point.name+"' size="+intersection.size());
+				System.out.println("Found not unique match for '"+point.name+"' clusters="+clustersToString(intersection));
 				
 				break;
 			}
 
+		}
+	}
+
+
+	/**
+	 * @param intersection
+	 * @return
+	 */
+	private static String clustersToString(Set<Cluster> clusters) {
+		StringBuffer buff = new StringBuffer();
+		for(Cluster cluster:clusters) {
+			buff.append(cluster.id+",");
+			
+		}
+		
+		return buff.toString();
+	}
+	
+	private static void printMatches(Set<Cluster> clusters,Point point,PrintStream out) {
+		
+		out.println("Matches for name='"+point.name+"'");
+		for(Cluster cluster:clusters) {
+			cluster.printSetMatch(point, out);
 		}
 	}
 
@@ -130,10 +187,10 @@ public class Main {
 
 	private static void writePrediction(Point[] newPoints, String filename)throws IOException {
 		
-		CSVWriter writer = new CSVWriter(new FileWriter(filename),',');
+		CSVWriter writer = new CSVWriter(new FileWriter(filename),',',CSVWriter.NO_QUOTE_CHARACTER);
 		int cnt=0;
 		for(Point point:newPoints) {
-			writer.writeNext(point.toStringArray());
+			writer.writeNext(point.toStringArrayPrediction());
 			
 		}
 		writer.close();
@@ -144,10 +201,11 @@ public class Main {
 
 	/**
 	 * @param args
+	 * @return 
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	private static void readTraingData(List<CityCluster> cities_list2) throws FileNotFoundException, IOException {
+	private static Point[] readTraingData(List<CityCluster> cities_list) throws FileNotFoundException, IOException {
 		
 		String dir = DATA_DIR;
 
@@ -172,7 +230,7 @@ public class Main {
 				cluster.addWords();
 				
 				cities.put(rec.city, cluster);
-				cities_list2.add(cluster);
+				cities_list.add(cluster);
 				
 			}
 			
@@ -185,23 +243,27 @@ public class Main {
 		System.out.println("#CountryClusters: "+countries.size());
 		
 		
-		printCityClusters(cities_list2,new PrintStream("CityCluster-Dump.txt"));
-		//printCityClusters(cities_list2,System.out);
+		printClusters(cities,new PrintStream("CityCluster-Dump.txt"));
+		printClusters(countries,new PrintStream("CountryCluster-Dump.txt"));
 		
 		
 		Dictionary.print(new PrintStream("Dictionary-Dump.txt"));
 		//Dictionary.print(System.out);
 		
+		return data;
+		
 	}
 
-	private static void printCityClusters(List<CityCluster> cities_list2,PrintStream out) throws FileNotFoundException {
+	private static void printClusters(HashMap<Integer, Cluster> cities,PrintStream out) throws FileNotFoundException {
 		
 		int cnt=0;
-		for(Cluster cluster:cities_list2) {
+		Iterator<Cluster> iter = cities.values().iterator();
+		while(iter.hasNext()) {
+			Cluster cluster = iter.next();
 			cluster.print(out);
 			cnt += cluster.getPoints().size();
 		}
-		out.println("#points in CityClusters:    "+cnt);
+		out.println("#points in Clusters:    "+cnt);
 	}
 
 	static void dump(HashMap<Integer,Cluster> map,String filename) throws IOException {
