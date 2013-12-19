@@ -16,7 +16,7 @@ class CountryCluster extends Cluster{
 	public Integer country;
 	public List<Point> list;
 	
-	public CountryCluster(Metric metric,Integer country,Point[] data) {
+	public CountryCluster(StringMetric metric,Integer country,Point[] data) {
 		super(metric,Type.COUNTRY);
 		this.country = country;
 		this.list = new LinkedList<Point>();

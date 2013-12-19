@@ -9,7 +9,8 @@ package ex4;
 /**
  * @author AdNovum Informatik AG
  */
-public interface Metric {
+public interface StringMetric {
 
 		int distance (String a,String b);
+		boolean isEqual(String a,String b);
 }

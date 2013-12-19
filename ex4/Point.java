@@ -74,4 +74,15 @@ public class Point implements Comparable<Point>{
 		return this.name.compareTo(o.name);
 	}
 
+	public int containsWord(String word,StringMetric metric) {
+		int cnt = 0;
+		for(String token:words) {
+			if(metric.isEqual(token, word)) {
+				cnt++;
+			}
+		}
+		return cnt;
+	}
+
+
 }

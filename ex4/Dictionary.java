@@ -34,7 +34,7 @@ public class Dictionary {
 		obj.addCluster(cluster);
 	}
 	
-	public static List<Set<Cluster>> getClusters(String[] words,Metric metric,int distance) {
+	public static List<Set<Cluster>> getClusters(String[] words,StringMetric metric,int distance) {
 
 		List<Set<Cluster>> clusters = new LinkedList<Set<Cluster>>();
 
@@ -45,7 +45,7 @@ public class Dictionary {
 		return clusters;
 	}
 
-	public static Set<Cluster> getClusters(String word,Metric metric,int distance) {
+	public static Set<Cluster> getClusters(String word,StringMetric metric,int distance) {
 
 		Set<Cluster> clusters = new HashSet<Cluster>();
 

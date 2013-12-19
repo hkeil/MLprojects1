@@ -17,7 +17,7 @@ class CityCluster  extends Cluster{
 	public Integer city;
 	public List<Point> list;
 	
-	public CityCluster(Metric metric,Integer country,Integer city,Point[] data) {
+	public CityCluster(StringMetric metric,Integer country,Integer city,Point[] data) {
 		super(metric,Type.CITY);
 		this.city = city;
 		this.country = country;

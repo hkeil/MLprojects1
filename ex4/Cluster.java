@@ -8,6 +8,7 @@ package ex4;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,17 +21,18 @@ public abstract class Cluster {
 	
 	int id;
 	Type type;
-	Metric metric;	
+	StringMetric metric;	
 	Point center;
 	double variance;
 	
 	Set<String> wordIntersection;
 	Set<String> wordUnion;
+	HashMap<String,Integer> wordFrequencies;
 	
 	
 	public abstract List<Point> getPoints();
 	
-	public Cluster(Metric metric,Type type) {
+	public Cluster(StringMetric metric,Type type) {
 		super();
 		this.id = objCnt++;
 		this.type   = type;
@@ -45,6 +47,27 @@ public abstract class Cluster {
 			wordUnion.addAll(Arrays.asList(point.words));
 			wordIntersection.retainAll(Arrays.asList(point.words));
 		}
+		
+		wordFrequencies = new HashMap<String, Integer>();
+		
+		for(String word:wordUnion) {
+			int cnt = 0;
+			for(Point point:getPoints()) {
+				cnt += point.containsWord(word,metric);
+			}
+			wordFrequencies.put(word, new Integer(cnt));
+		}
+	}
+	
+	public int wordFrequency(String word) {
+		
+		for(String tok:wordUnion) {
+			if(metric.isEqual(tok, word)) {
+				return wordFrequencies.get(tok);
+			}
+		}
+		
+		return 0;
 	}
 	
 	public static String setToString(Set<String> set) {
@@ -89,7 +112,11 @@ public abstract class Cluster {
 	public void print(PrintStream out) {
 		out.println("         #points="+getPoints().size());
 		out.println("         intersection="+Cluster.setToString(wordIntersection));
-		out.println("         union="+Cluster.setToString(wordUnion));
+		out.println("         frequencies:");
+		for(String word:wordUnion) {
+			Integer freq = wordFrequencies.get(word);
+			out.println("          "+freq+" '"+word+"'");
+		}
 		out.println("         all points:");
 		for(Point point:getPoints()) {
 			out.println("         '"+point.name+"'");

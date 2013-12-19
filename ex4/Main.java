@@ -28,10 +28,13 @@ import au.com.bytecode.opencsv.CSVWriter;
  */
 public class Main {
 	
-	public static String DATA_DIR = "/home/hacke/projects/svm1";
+	//public static String DATA_DIR = "/home/hacke/projects/svm1";
+	public static String DATA_DIR = "C:\\Users\\hacke\\Documents\\CAS\\machine-learning\\exercise4\\java\\svm1\\svm1";
 	
+	public static int STRING_EQUALS_THRESHOLD = 1;
+	public static StringMetric string_metrics[] = {new Levenshtein(STRING_EQUALS_THRESHOLD)};
+	public static ClusterMetric cluster_metrics[] = {new WeightMetric()};
 	
-	public static Metric metrics[] = {new Levenshtein()};
 	public static List<CityCluster> cities_list = new LinkedList<CityCluster>();
 	public static Point[] training_data = null;
 	
@@ -42,28 +45,31 @@ public class Main {
 		Point[] newPoints = readFile(DATA_DIR + "/validation.csv");
 		
 		int cnt = 0;
+		int cntDirect = 0;
 		for(Point point:newPoints) {
 			
+			
+			
 			// shortcut
-			//if(directMatch(point, cities_list)) {
-			//	continue;
-			//}
+			if(directMatch(point, cities_list)) {
+				cntDirect++;
+				continue;
+			}
 			
-			predict2(point,metrics[0]);
+			predict2(point,string_metrics[0]);
+			//predict3(point,cluster_metrics[0]);
 			
-			if(cnt++ == 10){
-				break;
+			cnt++;
+			if(cnt %100  == 0){
+				System.out.println("Prediction: cnt='"+cnt+"'");
 			}
 			
 		}
+		System.out.println("Prediction: cntDirect='"+cntDirect+"' "+(100 *cntDirect/cnt)+"%");
 		
-		writePrediction(newPoints,  DATA_DIR + "/valres-j.csv");
+		writePrediction(newPoints,  DATA_DIR + "/valres-j-predict1.csv");
 		
 	}
-
-
-	
-
 
 	private static boolean directMatch(Point point, List<CityCluster> clusters) {
 		
@@ -72,18 +78,42 @@ public class Main {
 				point.city = cluster.city;
 				point.country = cluster.country;
 				
-				System.out.println("Found direct match for '"+point.name+"'");
+				//System.out.println("Found direct match for '"+point.name+"'");
 				return true;
 			}
 		}
 		return false;
+	}
+	
+
+
+
+	private static void predict3(Point point, ClusterMetric clusterMetric) {
+		
+		double maxWeight = -1;
+		CityCluster prediction = null;
+		
+		for(CityCluster cluster:cities_list ) {
+			
+			double weigth = clusterMetric.distance(cluster, point);
+			if(maxWeight == -1 || weigth > maxWeight) {
+				maxWeight = weigth;
+				prediction = cluster;
+			}
+		}
+		
+		point.city = prediction.city;
+		point.country = prediction.country;
+		
+		//System.out.println("CC for name='"+point.name+"':");
+		//prediction.print(System.out);
 	}
 
 	/**
 	 * @param point
 	 * @param metric
 	 */
-	private static void predict2(Point point, Metric metric) {
+	private static void predict2(Point point, StringMetric metric) {
 		
 		int minDist = -1;
 		Point prediction = null;
@@ -99,9 +129,11 @@ public class Main {
 		
 		point.city = prediction.city;
 		point.country = prediction.country;
+		
+		//System.out.println("NN for name='"+point.name+"' is '"+prediction.name+"'");
 	}
 
-	private static void predict(Point point,Metric metric) {
+	private static void predict(Point point,StringMetric metric) {
 		
 		
 		int distance = 0;
@@ -191,7 +223,7 @@ public class Main {
 		int cnt=0;
 		for(Point point:newPoints) {
 			writer.writeNext(point.toStringArrayPrediction());
-			
+			cnt++;
 		}
 		writer.close();
 		
@@ -219,13 +251,13 @@ public class Main {
 			// unused for the moment
 			Cluster country = countries.get(rec.country);
 			if(country == null) {
-				Cluster cluster = new CountryCluster(metrics[0],rec.country, data);
+				Cluster cluster = new CountryCluster(string_metrics[0],rec.country, data);
 				countries.put(rec.country,cluster);
 			}
 			
 			Cluster city = cities.get(rec.city);
 			if(city == null) {
-				CityCluster cluster = new CityCluster(metrics[0],rec.country, rec.city, data);
+				CityCluster cluster = new CityCluster(string_metrics[0],rec.country, rec.city, data);
 				
 				cluster.addWords();
 				

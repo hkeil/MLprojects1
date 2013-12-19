@@ -9,7 +9,15 @@ package ex4;
 /**
  * @author AdNovum Informatik AG
  */
-public class Levenshtein implements Metric {
+public class Levenshtein implements StringMetric {
+	
+	private int equalsThreshold;
+	
+
+	public Levenshtein(int equalsThreshold) {
+		super();
+		this.equalsThreshold = equalsThreshold;
+	}
 
 	/* (non-Javadoc)
 	 * @see ex4.Metric#distance(java.lang.String, java.lang.String)
@@ -46,4 +54,10 @@ public class Levenshtein implements Metric {
 	    }
 	    return costs[s2.length()];
 	  }
+
+	@Override
+	public boolean isEqual(String a, String b) {
+		
+		return distance(a,b) < equalsThreshold;
+	}
 }
