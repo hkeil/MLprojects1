@@ -51,10 +51,10 @@ public class Main {
 			
 			
 			// shortcut
-			if(directMatch(point, cities_list)) {
-				cntDirect++;
-				continue;
-			}
+			//if(directMatch(point, cities_list)) {
+			//	cntDirect++;
+			//	continue;
+			//}
 			
 			predict2(point,string_metrics[0]);
 			//predict3(point,cluster_metrics[0]);
