@@ -46,35 +46,54 @@ public class Main {
 		training_data = readTraingData(cities_list,countries_list,string_metrics[0]);
 		training_data_list = Arrays.asList(training_data);
 
-		Point[] newPoints = readFile(DATA_DIR + "/validation.csv");
+		{
+			Point[] validationPoints = readFile(DATA_DIR + "/validation.csv");
+			int cnt = 0;
+			int cntDirect = 0;
+			for(Point point:validationPoints) {
 
-		int cnt = 0;
-		int cntDirect = 0;
-		for(Point point:newPoints) {
+				//predict1(point,string_metrics[0]);
+				predict2(point,string_metrics[0]);
+				//predict3(point,cluster_metrics[0]);
+				//predict4(point,cluster_metrics[0],string_metrics[0]);
+				//predict5(point,string_metrics[0]);
 
+				cnt++;
+				if(cnt %100  == 0){
+					System.out.println("Prediction: cnt='"+cnt+"'");
+				}
 
-
-			// shortcut
-			//if(directMatch(point, cities_list)) {
-			//cntDirect++;
-			//continue;
-			//}
-
-			//predict1(point,string_metrics[0]);
-			predict2(point,string_metrics[0]);
-			//predict3(point,cluster_metrics[0]);
-			//predict4(point,cluster_metrics[0],string_metrics[0]);
-			//predict5(point,string_metrics[0]);
-
-			cnt++;
-			if(cnt %100  == 0){
-				System.out.println("Prediction: cnt='"+cnt+"'");
 			}
+			System.out.println("Prediction: cntDirect='"+cntDirect+"' "+(100 *cntDirect/cnt)+"%");
 
+			writePrediction(validationPoints,  DATA_DIR + "/validation-res-NN.csv");
 		}
-		System.out.println("Prediction: cntDirect='"+cntDirect+"' "+(100 *cntDirect/cnt)+"%");
+		
+		{
+			Point[] testingPoints = readFile(DATA_DIR + "/testing.csv");
+			int cnt = 0;
+			int cntDirect = 0;
+			for(Point point:testingPoints) {
 
-		writePrediction(newPoints,  DATA_DIR + "/valres-j-predict2.csv");
+				//predict1(point,string_metrics[0]);
+				predict2(point,string_metrics[0]);
+				//predict3(point,cluster_metrics[0]);
+				//predict4(point,cluster_metrics[0],string_metrics[0]);
+				//predict5(point,string_metrics[0]);
+
+				cnt++;
+				if(cnt %100  == 0){
+					System.out.println("Prediction: cnt='"+cnt+"'");
+				}
+
+			}
+			System.out.println("Prediction: cntDirect='"+cntDirect+"' "+(100 *cntDirect/cnt)+"%");
+
+			writePrediction(testingPoints,  DATA_DIR + "/testing-res-NN.csv");
+		}
+
+
+
 
 	}
 
@@ -204,7 +223,7 @@ public class Main {
 
 	// predict in a combinatorial fashion
 	private static void predict1(Point point,StringMetric metric) {
-		
+
 		int distance = 0;
 		Set<Cluster> countries = null;
 		Set<Cluster> cities    = null;
@@ -259,7 +278,7 @@ public class Main {
 			//System.out.println("Empty city list for name='"+point.name+"' nnSearch over countries");
 			//System.out.println("       countries='"+clustersToString(countries)+"'");
 			//System.out.println("       cities='"+clustersToString(cities)+"'");
-			
+
 			Point prediction = nnSearch(point, Cluster.getAllPoints(countries), metric);
 			point.country = prediction.country;
 			point.city    = prediction.city;
@@ -269,7 +288,7 @@ public class Main {
 			CityCluster city = (CityCluster) cities.iterator().next();
 			point.country = city.country;
 			point.city    = city.city;
-			
+
 		}
 		else {
 			//System.out.println("Not Unique match name='"+point.name+"' size="+cities.size()+" nnSearch");
@@ -278,7 +297,7 @@ public class Main {
 			point.city    = prediction.city;
 		}
 	}
-	
+
 	private static Point nnSearch(Point point, List<Point> training,StringMetric metric) {
 
 		int minDist = -1;
@@ -300,7 +319,7 @@ public class Main {
 				}
 			}
 		}
-		
+
 		return prediction;
 		//System.out.println("NN for name='"+point.name+"' is '"+prediction.name+"'");
 	}
