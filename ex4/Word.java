@@ -1,31 +1,24 @@
 package ex4;
 
-import java.util.HashSet;
-import java.util.Set;
 
-class Word {
-	String word;
-	Set<Cluster> clusters;
+public class Word {
+
+	String value;
+	StringMetric metric;
 	
-	public Word(String word) {
+	public Word(String value,StringMetric metric) {
 		super();
-		this.word = word;
-		this.clusters = new HashSet<Cluster>();
+		this.metric = metric;
+		this.value = value;
 	}
-	
-	public String toString() {
+
+	public boolean equals(Object other){
 		
-		StringBuffer buff = new StringBuffer("word='"+word+"' clusters=");
-		
-		for(Cluster cluster:clusters) {
-			buff.append(cluster.id);
-			buff.append(",");
+		if(other instanceof Word && metric.isEqual(this.value, ((Word) other).value) ) {
+			return true;
 		}
-		
-		return buff.toString();
-	}
-	
-	public void addCluster(Cluster cluster) {
-		clusters.add(cluster);
+		else {
+			return false;
+		}
 	}
 }

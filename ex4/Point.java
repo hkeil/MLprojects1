@@ -40,7 +40,20 @@ public class Point implements Comparable<Point>{
 	
 	private void init() {
 		this.words = this.name.split(" ");
-		this.wordSet = new HashSet<String>(Arrays.asList(this.words));
+		this.wordSet = new HashSet<String>();
+		for(String word:words) {
+			wordSet.add(word);
+		}
+	}
+	
+	public Set<Word> createWordSet(StringMetric metric) {
+		
+		Set<Word> set = new HashSet<Word>();
+		for(String word:words) {
+			set.add(new Word(word, metric));
+		}
+		
+		return set;
 	}
 
 	/**

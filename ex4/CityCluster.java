@@ -17,8 +17,8 @@ class CityCluster  extends Cluster{
 	public Integer city;
 	public List<Point> list;
 	
-	public CityCluster(StringMetric metric,Integer country,Integer city,Point[] data) {
-		super(metric,Type.CITY);
+	public CityCluster(Integer country,Integer city,Point[] data) {
+		super(Type.CITY);
 		this.city = city;
 		this.country = country;
 		this.list = new LinkedList<Point>();
@@ -36,8 +36,6 @@ class CityCluster  extends Cluster{
 				}
 			}
 		}
-		
-		createSets();
 		
 		//computeDistribution();
 	}

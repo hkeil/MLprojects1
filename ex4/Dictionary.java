@@ -12,7 +12,7 @@ import java.util.TreeSet;
 
 public class Dictionary {
 
-	private static HashMap<String,Word> words = new HashMap<String,Word>();
+	private static HashMap<String,DictionaryWord> words = new HashMap<String,DictionaryWord>();
 
 
 	public static synchronized void addWords(String [] words,Cluster cluster){
@@ -25,35 +25,63 @@ public class Dictionary {
 
 	public static synchronized void addWord(String word,Cluster cluster){
 
-		Word obj = words.get(word);
+		DictionaryWord obj = words.get(word);
 		if(obj == null) {
-			obj = new Word(word);
+			obj = new DictionaryWord(word);
 			words.put(word, obj);
 		}
 
 		obj.addCluster(cluster);
 	}
 	
-	public static List<Set<Cluster>> getClusters(String[] words,StringMetric metric,int distance) {
+	public static List<Set<Cluster>> getCityClusters(String[] words,StringMetric metric,int distance) {
 
 		List<Set<Cluster>> clusters = new LinkedList<Set<Cluster>>();
 
 		for(String word:words) {
-			clusters.add(getClusters(word, metric, distance));
+			clusters.add(getCityClusters(word, metric, distance));
+		}
+		
+		return clusters;
+	}
+	
+
+	public static List<Set<Cluster>> getCountryClusters(String[] words,StringMetric metric,int distance) {
+
+		List<Set<Cluster>> clusters = new LinkedList<Set<Cluster>>();
+
+		for(String word:words) {
+			clusters.add(getCountryClusters(word, metric, distance));
 		}
 		
 		return clusters;
 	}
 
-	public static Set<Cluster> getClusters(String word,StringMetric metric,int distance) {
+	public static Set<Cluster> getCityClusters(String word,StringMetric metric,int distance) {
 
 		Set<Cluster> clusters = new HashSet<Cluster>();
 
-		Iterator<Word> iter = words.values().iterator();		
+		Iterator<DictionaryWord> iter = words.values().iterator();		
 		while(iter.hasNext()) {
-			Word obj = iter.next();
+			DictionaryWord obj = iter.next();
 			if(metric.distance(obj.word, word) < distance) {
-				clusters.addAll(obj.clusters);
+				clusters.addAll(obj.cityClusters);
+			}
+		}
+		
+		return clusters;
+	}
+	
+
+	public static Set<Cluster> getCountryClusters(String word,StringMetric metric,int distance) {
+
+		Set<Cluster> clusters = new HashSet<Cluster>();
+
+		Iterator<DictionaryWord> iter = words.values().iterator();		
+		while(iter.hasNext()) {
+			DictionaryWord obj = iter.next();
+			if(metric.distance(obj.word, word) < distance) {
+				clusters.addAll(obj.countryClusters);
 			}
 		}
 		
@@ -63,12 +91,13 @@ public class Dictionary {
 
 	public static void print(PrintStream out) throws FileNotFoundException {
 
-		out.println("Words:");
+		out.println("DictionaryWords:");
 
-		Iterator<Word> iter = words.values().iterator();		
+		Iterator<DictionaryWord> iter = words.values().iterator();		
 		int cnt=0;
 		while(iter.hasNext()) {
 			out.println("   "+iter.next().toString());
+			out.println();
 			cnt++;
 		}
 
