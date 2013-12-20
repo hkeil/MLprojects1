@@ -52,8 +52,8 @@ public class Main {
 			
 			// shortcut
 			//if(directMatch(point, cities_list)) {
-			//	cntDirect++;
-			//	continue;
+				//cntDirect++;
+				//continue;
 			//}
 			
 			predict2(point,string_metrics[0]);
@@ -67,7 +67,7 @@ public class Main {
 		}
 		System.out.println("Prediction: cntDirect='"+cntDirect+"' "+(100 *cntDirect/cnt)+"%");
 		
-		writePrediction(newPoints,  DATA_DIR + "/valres-j-predict1.csv");
+		writePrediction(newPoints,  DATA_DIR + "/valres-j-predict2.csv");
 		
 	}
 
@@ -121,9 +121,17 @@ public class Main {
 			
 			int dist = metric.distance(train.name, point.name);
 			
+			if (dist < 0) {
+				throw new IllegalStateException();
+			}
+			
 			if(minDist == -1 || dist < minDist) {
 				minDist = dist;
 				prediction = train;
+				if(minDist == 0) {
+					//System.out.println("NN direct match for name='"+point.name+"' is '"+prediction.name+"'");
+					//break;
+				}
 			}
 		}
 		
